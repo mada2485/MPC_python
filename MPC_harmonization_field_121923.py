@@ -25,7 +25,7 @@ hf_set = {}
 
 ####
 #edit the variables in this section for the harmonization - field run
-hf_set['hf_run_name'] = 'CAMML_Shed_Stewart_linreg_15min_1' # #Name of the harmonization/field outputs file. If you leave it blank inside the quotes, the output folder will be named with current datetime
+hf_set['hf_run_name'] = 'CAMML_Shed_Stewart_linreg_15min_6' # #Name of the harmonization/field outputs file. If you leave it blank inside the quotes, the output folder will be named with current datetime
                                                 # ^^ If you want the harmonization/field outputs folder to just be named with current datetime, set settings['run_name'] = '' (YOU NEED THE APOSTROPHES/QUOTES)
 colo_output_folder = 'Output_CAMML_Shed_Stewart_2024_4' #the code will pull the best_model from this, and also save new stuff into it
 
@@ -167,9 +167,9 @@ for pod_num, podname in enumerate(pod_fitted):
             #print(DF1)
             #print(DF2)
             # UPDATE 2/12/25 MRD: Received this warning: "FutureWarning: 'T' is deprecated and will be removed in a future version, please use 'min' instead." so I changed lines 169, 171, 314 and 316 to say 'min' instead of 'T'
-            temp= pd.concat([pod_harmonization_data[colo_pod_name][sensor + '_colo'], pod_harmonization_data[podname][sensor]], axis=1).resample(settings['time_interval']+'T').median()
+            temp= pd.concat([pod_harmonization_data[colo_pod_name][sensor + '_colo'], pod_harmonization_data[podname][sensor]], axis=1).resample(settings['time_interval']+'min').median()
         if settings['retime_calc']=='mean':
-            temp= pd.concat([pod_harmonization_data[colo_pod_name][sensor + '_colo'], pod_harmonization_data[podname][sensor]], axis=1).resample(settings['time_interval']+'T').mean()
+            temp= pd.concat([pod_harmonization_data[colo_pod_name][sensor + '_colo'], pod_harmonization_data[podname][sensor]], axis=1).resample(settings['time_interval']+'min').mean()
         temp.dropna(inplace=True)
 
         if settings['TElapsed_in_harmon']:
@@ -312,9 +312,9 @@ elif settings['run_field'] == True:
         else:
             #time average the pod field data
             if settings['retime_calc']=='median':
-                temp= pod_field_data[podname].resample(settings['time_interval']+'T').median()
+                temp= pod_field_data[podname].resample(settings['time_interval']+'min').median()
             if settings['retime_calc']=='mean':
-                temp= pod_field_data[podname].resample(settings['time_interval']+'T').mean()
+                temp= pod_field_data[podname].resample(settings['time_interval']+'min').mean()
             temp.dropna(inplace=True)
 
 

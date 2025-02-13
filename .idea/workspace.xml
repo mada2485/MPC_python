@@ -5,17 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1a5eaa7a-d731-4246-a562-cdb59d2b6e0e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/convert_csv_to_txt.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MPC_colocation.py" beforeDir="false" afterPath="$PROJECT_DIR$/MPC_colocation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MPC_harmonization_field_121923.py" beforeDir="false" afterPath="$PROJECT_DIR$/MPC_harmonization_field_121923.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Python_Functions/colo_model_func.py" beforeDir="false" afterPath="$PROJECT_DIR$/Python_Functions/colo_model_func.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deployment_log.csv" beforeDir="false" afterPath="$PROJECT_DIR$/deployment_log.csv" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
