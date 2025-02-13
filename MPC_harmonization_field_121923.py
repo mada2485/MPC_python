@@ -25,27 +25,24 @@ hf_set = {}
 
 ####
 #edit the variables in this section for the harmonization - field run
-hf_set['hf_run_name'] = '' # #Name of the harmonization/field outputs file. If you leave it blank inside the quotes, the output folder will be named with current datetime
+hf_set['hf_run_name'] = 'CAMML_Shed_Stewart_linreg_15min_1' # #Name of the harmonization/field outputs file. If you leave it blank inside the quotes, the output folder will be named with current datetime
                                                 # ^^ If you want the harmonization/field outputs folder to just be named with current datetime, set settings['run_name'] = '' (YOU NEED THE APOSTROPHES/QUOTES)
-colo_output_folder = 'Output_240528182037' #the code will pull the best_model from this, and also save new stuff into it
+colo_output_folder = 'Output_CAMML_Shed_Stewart_2024_4' #the code will pull the best_model from this, and also save new stuff into it
 
 hf_set['run_field'] = True    #True if you want to apply calibration to field data,
                                     #False if you only want to look at harmonization data
-hf_set['best_model'] = 'random_forest'    #model that you would like to apply to field data from the output_folder
+hf_set['best_model'] = 'lin_reg'    #model that you would like to apply to field data from the output_folder
 hf_set['k_folds'] = 5   #number of folds to split the data into for the k-fold cross validation, usually 5 or 10
 hf_set['field_plot_list'] = ['field_boxplot','field_timeseries'] #field plots: 'field_boxplot', 'field_timeseries', 'field_histogram', 'harmonized_field_hist'
                                 # ^^ harmonized_field_hist plots the field data after the harmonization correction is applied but before the field data is calibrated to the colocaiton model
-hf_set['harmon_plot_list'] = [] #harmonization plots: 'harmon_timeseries','harmon_stats_plot', 'harmon_scatter',
-hf_set['TElapsed_in_harmon']= True   # if you have bookended harmonizations, it's a good idea to add in a time elapsed term to the harmonization models
-                                    # if you do not have bookended harmonizaitons, adding in time elapsed is probs a bad idea because it will overcorrect.
+hf_set['harmon_plot_list'] = ['harmon_timeseries','harmon_stats_plot','harmon_scatter'] #harmonization plots: 'harmon_timeseries','harmon_stats_plot', 'harmon_scatter',
+hf_set['TElapsed_in_harmon']= False   # if you have bookended harmonizations, it's a good idea to add in a time elapsed term to the harmonization models
+                                    # if you do not have bookended harmonizations, adding in time elapsed is probs a bad idea because it will overcorrect.
 
-hf_set['crop_field_time']= False    # set to true if you want to crop the field times that are fit/plotted
+hf_set['crop_field_time']= True    # set to true if you want to crop the field times that are fit/plotted
 
-hf_set['field_start']= '2023-10-11 01:00:00' #if field_crop_time is True, set the start time. everything before will be cropped.
-hf_set['field_end']= '2023-12-21 00:00:00'   #if field_crop_time is True, set the end time. everything after will be cropped.
-
-####
-
+hf_set['field_start']= '2024-2-10 07:15:00' #if field_crop_time is True, set the start time. everything before will be cropped.
+hf_set['field_end']= '2024-2-11 07:14:00'   #if field_crop_time is True, set the end time. everything after will be cropped.
 
 ###############
 # Check if the output folder exists
@@ -151,10 +148,25 @@ for pod_num, podname in enumerate(pod_fitted):
     preprocessed_harmon_data[podname]= pd.DataFrame(columns=settings['sensors_included'])
     #make a dictionary to save the harmonization models into
     harmonization_mdls[podname] = dict.fromkeys(pod_fitted[podname].columns)
+
+    print('processing pod num', pod_num, 'podname ', podname)
     
     #time average and align the data between the colocation pod (secondary standard) and other pods
     for sensor in settings['sensors_included']:
         if settings['retime_calc']=='median':
+            #print('concat arg 1')
+            #print(pod_harmonization_data[colo_pod_name][sensor + '_colo'][pod_harmonization_data[colo_pod_name][sensor + '_colo'].index.duplicated()])
+            #print('concat arg 2')
+            # if we drop the duplicates here, higher level functions that don't have duplicates dropped will likely complain that the lengths mismatch....
+            #print(pod_harmonization_data[podname][sensor][pod_harmonization_data[podname][sensor].index.duplicated()])
+            #print('sampling amt')
+            #print(settings['time_interval']+'T')
+            # combine sensor and colo data, resample based on settings... the T modifier (is deprecated, should use min) specifies the minutes to resample with
+            #DF1 = pd.DataFrame([pod_harmonization_data[colo_pod_name][sensor + '_colo']])
+            #DF2 = pd.DataFrame(pod_harmonization_data[podname][sensor])
+            #print(DF1)
+            #print(DF2)
+            # UPDATE 2/12/25 MRD: Received this warning: "FutureWarning: 'T' is deprecated and will be removed in a future version, please use 'min' instead." so I changed lines 169, 171, 314 and 316 to say 'min' instead of 'T'
             temp= pd.concat([pod_harmonization_data[colo_pod_name][sensor + '_colo'], pod_harmonization_data[podname][sensor]], axis=1).resample(settings['time_interval']+'T').median()
         if settings['retime_calc']=='mean':
             temp= pd.concat([pod_harmonization_data[colo_pod_name][sensor + '_colo'], pod_harmonization_data[podname][sensor]], axis=1).resample(settings['time_interval']+'T').mean()

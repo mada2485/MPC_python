@@ -44,15 +44,16 @@ settings={}
 plt.close('all')
 
 #Variable to change for your analysis
-settings['colo_run_name'] = ''  #Name of the outputs file. If you leave it blank inside the quotes, the output folder will be named with current time
+settings['colo_run_name'] = 'CAMML_Shed_Stewart_2024_6'  #Name of the outputs file. If you leave it blank inside the quotes, the output folder will be named with current time
 # ^^ If you want the outputs folder to just be named with current datetime, set settings['run_name'] = '' (YOU NEED THE APOSTROPHES/QUOTES)
-settings['ref_file_name'] = 'InnerPort_101023_031824_voc' #Name of the reference CSV or XLSX file you are using (do not type .csv for the name)
-settings['ref_timezone'] = 'PST'
-settings['pollutant']='TVOC' #make sure this matches the column name in the reference data file (CSV or XLSX)
-settings['unit'] = 'ppb' #concentration units of the target pollutant (for plot labels)
+# working through a universal naming convention: colo site_harm site_field site_year_trial
+settings['ref_file_name'] = 'SPOD_0605_0701_24' #Name of the reference CSV or XLSX file you are using (do not type .csv for the name)
+settings['ref_timezone'] = 'MST'
+settings['pollutant'] = 'TVOC_ppm' #make sure this matches the column name in the reference data file (CSV or XLSX)
+settings['unit'] = 'ppm' #concentration units of the target pollutant (for plot labels)
 settings['time_interval'] = 60 #time averaging in minutes. needs to be at least as high as the time resolution of the reference data
 settings['retime_calc'] = "median" #How the time averaging is calculated. Options are median and mean right now and are the same for pod and ref
-settings['sensors_included'] = ["Fig2600",'Temperature','Humidity'] #list the sensors you want in the model (both pollutant and environmental, like temperature or humidity)
+settings['sensors_included'] = ["Fig2600","Fig2602","Temperature","Humidity"] #list the sensors you want in the model (both pollutant and environmental, like temperature or humidity)
 settings['scaler'] = StandardScaler() #How the data is scaled. StandardScaler is mean zero and st dev 1
 settings['t_warmup'] = 120 #warm up period in minutes
 settings['test_percentage'] = 0.2 #what percentage of data goes into the test set, usually 0.2 or 0.3
@@ -61,7 +62,8 @@ settings['traintest_split_type'] = 'mid_end_split' #how the data is split into t
 # 'mid_end_split' takes % of middle data and % of data at end to form test set
 # 'end_test' takes % of end data to form test set
 
-settings['colo_plot_list'] = ['colo_timeseries','colo_scatter', 'colo_stats_plot','colo_residual'] # plots to plot and save
+settings['colo_plot_list'] = ['colo_stats_plot','colo_timeseries','colo_scatter','colo_residual'] # plots to plot and save
+#'colo_stats_plot'
 #plot options:
 # colo_timeseries: timeseries of predicted Y and reference Y
 # colo_scatter: scatter plot of predicted vs. reference Y
@@ -70,8 +72,7 @@ settings['colo_plot_list'] = ['colo_timeseries','colo_scatter', 'colo_stats_plot
 # corr_heatmap: heat map of the correlations between each sensor column and the reference data
 # feature_importance: bar plot of the relative importance of the features used in machine learning models. does not work for linear models.
 
-
-settings['models']=['lin_reg','random_forest'] #which models are run on the data
+settings['models']=['lin_reg','random_forest','gradboost'] #which models are run on the data
 #regular options: 'lin_reg','lasso','ridge','random_forest','adaboost', 'gradboost', 'svr_'
 #svr takes a long time
 #adaboost is usually a classification model, so it doesn't work great
@@ -99,18 +100,57 @@ settings['quartiles_downsampling_rate'] = 0.6   ## If using 'resample_quartile',
 settings['n_bins']= 5   ## If using binned_resample, choose how many bins to split the data into.
 settings['binned_resample_binnum_multiplier'] = 2  #The number of samples per bin after resampling is set as 1/n_bins. However, this can be adjusted by mulitiplying 1/n by 'binned_resample_binnum_multiplier' if you don't want to remove so much data
 settings['weighting_percentile'] = [99.5,99.9] #list which percentiles to test for weighting. All data points in that percentile or higher will be weighted higher than those below.
-settings['weighting_weight'] = [10, 15, 20] #list what weights to test for a weighted model. All points above the percentile will be given this weight. Those below the percentile will ahve a weight of 1.
+settings['weighting_weight'] = [10, 15, 20] #list what weights to test for a weighted model. All points above the percentile will be given this weight. Those below the percentile will have a weight of 1.
 
 #Column_names is a dictionary of column names lists that will be applied to pod data.
 # The name of the list corresponds to the deployment log "header_type" column
 # besides datetime (or date and time), ALL columns must be numeric.
 #if you want to have data columns that are strings (text), discuss with caroline.
-settings['column_names'] = {'3.1.0':
-                                ["datetime", "Volts", "Fig2600", "Fig2602","Fig3","Fig3heater", "Fig4","Fig4heater",
-                                 "PID","Mics2611", "CO_aux","CO_main", "CO2", "Temperature", "Pressure", "Humidity",
-                                "Quad1C1", "Quad1C2","Quad1C3","Quad1C4", "Quad2C1", "Quad2C2","Quad2C3","Quad2C4",
-                                "MQ131","PM 10 ENV", "PM 25 ENV", "PM 100 ENV", "PM 03 um", "PM 05 um", "PM 10 um",
-                                "PM 25 um", "PM 50 um", "PM 100 um",'OPC1','OPC2','OPC3','OPC4','OPC5','WS_mph','WD','unk'],
+settings['column_names'] = {'3.1.0': # latest and greatest firmware update
+                                ["datetime", "Volts", "Fig2600", "Fig2602", "Fig3", "Fig3heater", "Fig4", "Fig4heater",
+                                "PID","Mics2611", "CO_aux","CO_main", "CO2", "Temperature", "Pressure", "Humidity",
+                                "Quad1C1", "Quad1C2", "Quad1C3", "Quad1C4", "Quad2C1", "Quad2C2", "Quad2C3", "Quad2C4",
+                                "MQ131", "PM 10 ENV", "PM 25 ENV", "PM 100 ENV", "PM 03 um", "PM 05 um", "PM 10 um",
+                                "PM 25 um", "PM 50 um", "PM 100 um", "OPC1", "OPC2", "OPC3", "OPC4", "OPC5", "WS_mph", "WD", "unk"],
+
+                            '3.1.1': # fixing apods from 9/2024
+                                ["datetime", "Volts", "Fig2600", "Fig2602", "Fig3", "Fig3heater", "Fig4", "Fig4heater",
+                                "PID","Mics2611", "CO_aux","CO_main", "CO2", "Temperature", "Pressure", "Humidity",
+                                "Quad1C1", "Quad1C2", "Quad1C3", "Quad1C4", "Quad2C1", "Quad2C2", "Quad2C3", "Quad2C4",
+                                "MQ131", "PM 10 ENV", "PM 25 ENV", "PM 100 ENV", "PM 03 um", "PM 05 um", "PM 10 um",
+                                "PM 25 um", "PM 50 um", "PM 100 um", "OPC1", "OPC2", "OPC3", "OPC4", "OPC5", "WS_mph",
+                                "WD", "unk1", "unk2", "unk3", "unk4", "unk5", "unk6", "unk7", "unk8", "unk9", "unk10",
+                                "unk11", "unk12", "unk13", "unk14", "unk15", "unk16", "unk17"],
+
+                            '3.2.0': #MPOD SD card 1/2025
+                                ["datetime", "Fig2600", "Fig2602", "Fig2611", "CO_worker", "CO_aux",
+                                 "Temperature", "Pressure", "Humidity", "Gas_Resistance"],
+
+                            '3.2.1': #MPOD cellular 1/2025
+                                ["ParticleID","datetime", "Fig2600", "Fig2602", "Fig2611", "CO_aux", "CO_worker",
+                                 "Temperature", "Humidity"],
+
+                            '3.1.2': #for APOD5 with updated firmware (XPODV3.1.2) #need to validate # of unknowns
+                                ["datetime", "Volts", "Fig2600", "Fig2602", "Fig3", "Fig3heater", "Fig4", "Fig4heater",
+                                "e2V","PID", "CO_aux","CO_main", "CO2", "Temperature", "Pressure", "Humidity",
+                                "Quad1C1", "Quad1C2", "Quad2C1", "Quad2C2", "Quad3C1", "Quad3C2", "Quad4C1", "Quad4C2",
+                                "MET_spd", "MET_dir", "MQ131", "PM 10 ENV", "PM 25 ENV", "PM 100 ENV", "PM 03 um", "PM 05 um", "PM 10 um",
+                                "PM 25 um", "PM 50 um", "PM 100 um"],
+
+                            '3.0.9': # for C16 September 2023
+                                ["datetime", "Volts", "Fig2600", "Fig2602", "Fig3", "Fig3heater", "Fig4", "Fig4heater",
+                                "PID","Mics2611", "CO_main", "CO2", "Temperature", "Pressure", "Humidity",
+                                "Quad1C1", "Quad1C2", "Quad1C3", "Quad1C4", "Quad2C1", "Quad2C2", "Quad2C3", "Quad2C4",
+                                "MQ131", "PM 10 ENV", "PM 25 ENV", "PM 100 ENV", "PM 03 um", "PM 05 um", "PM 10 um",
+                                "PM 25 um", "PM 50 um", "PM 100 um", "OPC1", "OPC2", "OPC3", "OPC4", "OPC5", "WS_mph", "WD", "unk", "unk1", "unk2"],
+
+                            '3.0.0':
+                                ["datetime", "Volts", "Fig2600", "Fig2602", "Fig3heater", "Fig3", "Fig4heater", "Fig4",
+                                 "e2vO3", "PID", "CO_aux", "CO_main", "CO2", "Temperature", "Pressure", "Humidity",
+                                 "QS1_Aux", "QS1_Main", "QS2_Aux", "QS2_Main", "QS3_Aux", "QS3_Main", "QS4_Aux",
+                                 "QS_Main", "Wind_Dir", "Wind_Spd", "MQ", "PT_PM10ENV", "PT_PM25ENV", "PT_PM100ENV",
+                                 "PT_PM03um", "PT_PM05um", "PT_PM10um", "PT_PM25um", "PT_PM50um", "PT_100um", "OPC_SampPer",
+                                 "OPC_FlowRate", "OPC_PM10", "OPC_PM25", "OPC_PM100"],
 
                             '3.1.2_opc':
                                 ["datetime", "Volts", "Fig2600", "Fig2602", "Fig3", "Fig3heater", "Fig4", "Fig4heater",
@@ -122,9 +162,9 @@ settings['column_names'] = {'3.1.0':
                                  'OPC_Bin5', 'OPC_Bin6', 'OPC_Bin7', 'OPC_Bin8',
                                  'OPC_Bin9', 'OPC_Bin10', 'OPC_Bin11', 'OPC_Bin12', 'OPC_Bin13', 'OPC_Bin14',
                                  'OPC_Bin15', 'OPC_Bin16', 'OPC_SampPer',
-                                 'OPC_FlowRate', 'OPC_PM10_', 'OPC_PM25', 'OPC_PM100', 'unk']
-    ,
-                            '3.1.2':
+                                 'OPC_FlowRate', 'OPC_PM10_', 'OPC_PM25', 'OPC_PM100', 'unk'],
+
+                            '3.1.2_not using':
                                 ["datetime","Volts", "Fig2600", "Fig2602","Fig3","Fig3heater", "Fig4","Fig4heater",
                                 "PID", "Mics2611", "CO_aux","CO_main", "CO2", "Temperature", "Pressure", "Humidity", "Quad1C1", "Quad1C2","Quad1C3","Quad1C4",
                                 "Quad2C1", "Quad2C2","Quad2C3","Quad2C4",'WS_mph','WD',
@@ -175,7 +215,7 @@ if "add_time_elapsed" in settings['preprocess']:
 #Load colocation data
 colo_file_list = deployment_log[(deployment_log['deployment']=='C') & (deployment_log['pollutant']==settings['pollutant'])]['file_name'] #list of all colo files to combine
 
-#make sure there just one colocation pod
+#make sure there is just one colocation pod
 settings['colo_pod_name'] = list(set([string.split('_')[0] for string in colo_file_list]))
 if len(settings['colo_pod_name']) == 0:
     raise KeyError('No colocation files listed in deployment log for given pollutant.')   
@@ -240,9 +280,9 @@ ref_data = ref_data[~ref_data.index.duplicated(keep='first')]
 #time average and align the colocation and reference data
 print('Re-timing colocation pod and reference data...')
 if settings['retime_calc']=='median':
-    data_combined= pd.concat([colo_pod_data, ref_data], axis=1).resample(settings['time_interval']+'T').median()
+    data_combined= pd.concat([colo_pod_data, ref_data], axis=1).resample(settings['time_interval']+'min').median()
 if settings['retime_calc']=='mean':
-    data_combined= pd.concat([colo_pod_data, ref_data], axis=1).resample(settings['time_interval']+'T').mean()
+    data_combined= pd.concat([colo_pod_data, ref_data], axis=1).resample(settings['time_interval']+'min').mean()
   
 #rename the reference column to the pollutant name    
 data_combined.rename(columns={data_combined.columns[-1]:settings['pollutant']+'_ref'},inplace=True)
@@ -379,21 +419,20 @@ else:
         model_module = importlib.import_module('Python_Functions.colo_model_func')
         # Get the function from the module
         model_func = getattr(model_module, model_name)
+
         # Call the function to apply the model_name model
-        model_stats, y_train_predicted, y_test_predicted, y_predicted, current_model = model_func(X_train, y_train, X_test, y_test,X_std_values,model_name,model_stats)
+        model_stats, y_train_predicted, y_test_predicted, y_predicted, current_model = model_func(X_train, y_train, X_test, y_test, X_std_values, model_name, model_stats)
 
         #save out the model and the y predicted
         y_predicted = pd.DataFrame(data = y_predicted, columns = [settings['pollutant']], index = X_std.index)
         y_predicted.to_csv(os.path.join('Outputs', output_folder_name, f'{model_name}_colo_y_predicted.csv'))
         joblib.dump(current_model, os.path.join('Outputs', output_folder_name, f'{model_name}_model.joblib'))
 
-    #plotting of modelled data
+        #plotting of modelled data
         plotting_func.colo_plots_series(settings['colo_plot_list'], y_train, y_train_predicted, y_test,
                                         y_test_predicted, settings['pollutant'], model_name,
                                         output_folder_name, settings['colo_run_name'], settings['unit'], current_model,
                                         list(X_std.columns), X_train, X_test)
-
-
 
 #save out the model for later analysis and use in field data
 model_stats.to_csv(os.path.join('Outputs', output_folder_name, 'colo_model_stats.csv'), index = True)

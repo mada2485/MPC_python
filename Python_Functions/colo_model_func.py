@@ -10,12 +10,12 @@ from sklearn.svm import SVR
 
 def save_outputs(model_stats, model_name, current_model, X_train, X_test, y_train,y_test, y_train_predicted, y_test_predicted) :
     # save the model statistics
-    model_stats['Training_R2'][model_name] = round(current_model.score(X_train, y_train), 2)
-    model_stats['Testing_R2'][model_name] = round(current_model.score(X_test, y_test), 2)
-    model_stats['Training_RMSE'][model_name] = (np.sqrt(mean_squared_error(y_train, y_train_predicted)))
-    model_stats['Testing_RMSE'][model_name] = (np.sqrt(mean_squared_error(y_test, y_test_predicted)))
-    model_stats['Training_MBE'][model_name] = np.mean(y_train_predicted - y_train)
-    model_stats['Testing_MBE'][model_name] = np.mean(y_test_predicted - y_test)
+    model_stats.loc[model_name,"Training_R2"] = round(current_model.score(X_train, y_train), 2)
+    model_stats.loc[model_name,"Testing_R2"] = round(current_model.score(X_test, y_test), 2)
+    model_stats.loc[model_name,"Training_RMSE"] = (np.sqrt(mean_squared_error(y_train, y_train_predicted)))
+    model_stats.loc[model_name,"Testing_RMSE"] = (np.sqrt(mean_squared_error(y_test, y_test_predicted)))
+    model_stats.loc[model_name,"Training_MBE"] = np.mean(y_train_predicted - y_train)
+    model_stats.loc[model_name,"Testing_MBE"] = np.mean(y_test_predicted - y_test)
 
     return model_stats
 
