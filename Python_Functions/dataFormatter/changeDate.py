@@ -1,9 +1,6 @@
 import os
 import re
 
-# TODO: Marissa needs to do the following:
-#       4 - check in to git
-
 # TODO: print out system path for the input_folder and output_folder
 input_folder  = 'input'
 output_folder = 'output'
