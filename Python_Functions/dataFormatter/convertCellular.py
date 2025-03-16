@@ -68,7 +68,7 @@ for input_file in os.scandir(input_folder):
                 #  "e00fce68c7197b6d5c8bc47e",Sun Feb 16 2025 22:48:25 GMT-0700 (Mountain Standard Time),"[[ 
                 #    so to parse this, we look for whatever garbage, then a close quote comma to signify the end of device id
                 #    and then we grab everything before the timezone in parantheses. timezone changes, the word Time doesn't seem to
-                re_line_ts = re.sub(r"^.*\",(.*) \(.*Time\).*", r"\1", line).strip()
+                re_line_ts = re.sub(r"^.*,(.*) \(.*Time\).*", r"\1", line).strip()
                 line_base_ts = parse_to_datetime(re_line_ts)
                 # line_count is used in a few places to prevent us from doing a bunch of stdout that floods it all
                 if line_count < 3:
